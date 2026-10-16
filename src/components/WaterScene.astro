@@ -1,0 +1,74 @@
+---
+// Анимированная вода для первого экрана: световые блики (каустика) + три слоя волн.
+// Только CSS-трансформации — дёшево для GPU. При prefers-reduced-motion всё статично.
+interface Props {
+  class?: string;
+  /** Цвет секции, которая идёт следом: передняя волна плавно в неё переходит */
+  next?: 'foam' | 'cream';
+}
+const { class: cls = '', next = 'foam' } = Astro.props;
+// Бесшовный путь волны шириной 2880 (две копии по 1440), чтобы сдвиг на -50% зацикливался
+const wave = (amp: number, y: number) => {
+  const seg = (x: number) => `C${x + 240} ${y - amp} ${x + 480} ${y - amp} ${x + 720} ${y} S${x + 1200} ${y + amp} ${x + 1440} ${y}`;
+  return `M0 ${y} ${seg(0)} ${seg(1440)} V200 H0 Z`;
+};
+---
+
+<div class:list={['water pointer-events-none absolute inset-0 overflow-hidden', cls]} aria-hidden="true">
+  <div class="water__glow water__glow--1"></div>
+  <div class="water__glow water__glow--2"></div>
+  <div class="water__glow water__glow--3"></div>
+
+  <div class="water__waves">
+    <svg class="water__layer water__layer--back" viewBox="0 0 2880 200" preserveAspectRatio="none">
+      <path d={wave(26, 70)} fill="var(--color-sky)" opacity="0.7" />
+    </svg>
+    <svg class="water__layer water__layer--mid" viewBox="0 0 2880 200" preserveAspectRatio="none">
+      <path d={wave(20, 96)} fill="var(--color-aqua)" opacity="0.45" />
+    </svg>
+    <svg class="water__layer water__layer--front" viewBox="0 0 2880 200" preserveAspectRatio="none">
+      <path d={wave(16, 124)} fill={`var(--color-${next})`} />
+    </svg>
+  </div>
+</div>
+
+<style>
+  .water {
+    background:
+      radial-gradient(120% 70% at 85% 0%, rgb(189 228 255 / 0.85), transparent 60%),
+      radial-gradient(90% 60% at 0% 20%, rgb(255 241 214 / 0.9), transparent 55%),
+      linear-gradient(180deg, var(--color-cream) 0%, #f2fbfa 55%, var(--color-foam) 100%);
+  }
+  .water__glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    mix-blend-mode: soft-light;
+    background: radial-gradient(circle, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0) 70%);
+    animation: caustic 11s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+  .water__glow--1 { width: 46vmax; height: 30vmax; top: -8%; right: -6%; }
+  .water__glow--2 { width: 32vmax; height: 22vmax; top: 30%; left: -10%; animation-duration: 14s; animation-delay: -4s;
+    background: radial-gradient(circle, rgb(189 228 255 / 0.9), rgb(189 228 255 / 0) 70%); mix-blend-mode: normal; opacity: .5; }
+  .water__glow--3 { width: 26vmax; height: 18vmax; bottom: 18%; right: 25%; animation-duration: 17s; animation-delay: -9s;
+    background: radial-gradient(circle, rgb(92 198 192 / 0.35), rgb(92 198 192 / 0) 70%); mix-blend-mode: normal; }
+
+  .water__waves { position: absolute; inset: auto 0 -1px 0; height: clamp(90px, 16vw, 190px); }
+  .water__layer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    animation: wave-drift linear infinite;
+    will-change: transform;
+  }
+  .water__layer--back { animation-duration: 38s; height: 100%; }
+  .water__layer--mid { animation-duration: 26s; animation-direction: reverse; height: 86%; }
+  .water__layer--front { animation-duration: 18s; height: 72%; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .water__glow, .water__layer { animation: none; }
+  }
+</style>

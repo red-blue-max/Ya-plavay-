@@ -1,0 +1,39 @@
+# Цены. price — строка как она будет показана на сайте, например "3300 руб." или "2800/3000 руб.".
+# price: null — на сайте будет «Цена уточняется» (так помечены цены, которые на старом сайте
+# расходились между главной и страницей /stoimost — см. content/voprosy-vladelcu.md, вопрос 1).
+# pool — id бассейна из pools.yaml.
+
+- id: individual
+  title: "Индивидуальные занятия"
+  duration: "45 минут"
+  items:
+    - pool: arktika
+      price: null        # главная: 3000; /stoimost: 3300
+    - pool: shvidler
+      price: null        # главная: 2700; /stoimost: 2800/3000
+    - pool: luzhniki
+      price: null        # главная: 3000/3300; /stoimost: 3300/3500
+    - pool: kachalovsky
+      price: null        # главная: не указана; /stoimost: 3300/3500
+    - pool: dmitrovskaya
+      price: "3300 руб."
+    - pool: chaykovsky
+      price: "3300 руб."
+    - pool: akvapingvi
+      price: null        # на старом сайте цены нет
+    - pool: akvaris
+      price: null        # на старом сайте цены нет
+
+- id: group
+  title: "Групповые занятия"
+  items:
+    - label: "Групповое занятие"
+      place: "бассейн Лужники (сб в 15:00 и 16:30)"
+      icon: users
+      duration: "45 минут"
+      price: "1000 руб."
+    - label: "Парафридайвинг"
+      place: "бассейн Лужники"
+      icon: drop
+      duration: "60 минут"
+      price: "1300 руб."

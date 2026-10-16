@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import WaterScene from '../components/WaterScene.astro';
+---
+
+<Base title="Страница не найдена" description="Такой страницы нет на сайте клуба «Я Плаваю»." noindex hideStickyCta noForm>
+  <section class="relative isolate overflow-hidden pt-20 pb-44 sm:pt-28">
+    <WaterScene class="-z-10" next="cream" />
+    <div class="container-page max-w-2xl">
+      <p class="eyebrow">Ошибка 404</p>
+      <h1 class="mt-3">Кажется, эта страница уплыла</h1>
+      <p class="lead mt-5">Возможно, адрес изменился. Начните с главной или выберите занятие.</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="/" class="btn btn-primary">На главную</a>
+        <a href="/zanyatiya/" class="btn btn-secondary">Все занятия</a>
+      </div>
+    </div>
+  </section>
+</Base>

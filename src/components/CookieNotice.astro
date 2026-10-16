@@ -1,0 +1,50 @@
+---
+// Подключается, только если в .env задан PUBLIC_YM_ID.
+// Метрика загружается ТОЛЬКО после нажатия «Принять». Выбор хранится в localStorage.
+interface Props { ymId: string }
+const { ymId } = Astro.props;
+---
+
+<div
+  hidden
+  data-cookie
+  data-ym={ymId}
+  role="region"
+  aria-label="Уведомление о cookie"
+  class="fixed inset-x-3 bottom-24 z-50 mx-auto max-w-xl rounded-3xl bg-white p-5 shadow-[var(--shadow-lift)] ring-1 ring-ink/10 sm:bottom-6"
+>
+  <p class="text-base">
+    Мы используем cookie и Яндекс.Метрику, чтобы понимать, как улучшить сайт. Подробнее — в
+    <a href="/politicakonfi/">политике конфиденциальности</a>.
+  </p>
+  <div class="mt-4 flex flex-wrap gap-2">
+    <button type="button" class="btn btn-primary" data-cookie-accept>Принять</button>
+    <button type="button" class="btn btn-secondary" data-cookie-decline>Только необходимые</button>
+  </div>
+</div>
+
+<script>
+  const box = document.querySelector<HTMLElement>('[data-cookie]');
+  const KEY = 'cookie-consent';
+  const loadMetrika = (id: string) => {
+    // Официальный код счётчика Яндекс.Метрики (сервер в РФ)
+    const w = window as any;
+    w.ym = w.ym || function (...a: unknown[]) { (w.ym.a = w.ym.a || []).push(a); };
+    w.ym.l = Date.now();
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://mc.yandex.ru/metrika/tag.js';
+    document.head.appendChild(s);
+    w.ym(Number(id), 'init', { clickmap: true, trackLinks: true, accurateTrackBounce: true });
+  };
+  if (box) {
+    const id = box.dataset.ym!;
+    let choice: string | null = null;
+    try { choice = localStorage.getItem(KEY); } catch {}
+    if (choice === 'yes') loadMetrika(id);
+    else if (!choice) box.hidden = false;
+    const save = (v: string) => { try { localStorage.setItem(KEY, v); } catch {} box.hidden = true; };
+    box.querySelector('[data-cookie-accept]')?.addEventListener('click', () => { save('yes'); loadMetrika(id); });
+    box.querySelector('[data-cookie-decline]')?.addEventListener('click', () => save('no'));
+  }
+</script>

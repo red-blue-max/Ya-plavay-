@@ -1,0 +1,115 @@
+---
+import '../styles/global.css';
+import { getImage } from 'astro:assets';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import StickyCta from '../components/StickyCta.astro';
+import CookieNotice from '../components/CookieNotice.astro';
+import { getSite, INDEXING, YM_ID, SIGNUP_ANCHOR } from '../lib/site';
+import logo from '../images/brand/logo.png';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Скрыть липкую кнопку «Записаться» (юридические страницы) */
+  hideStickyCta?: boolean;
+  /** Принудительно закрыть страницу от индексации (служебные страницы) */
+  noindex?: boolean;
+  ogImage?: ImageMetadata;
+  /** На странице нет формы записи — кнопки «Записаться» ведут на форму в контактах */
+  noForm?: boolean;
+  /** Дополнительная разметка schema.org для страницы */
+  jsonLd?: Record<string, unknown>[];
+}
+
+const { title, description, hideStickyCta = false, noindex = false, noForm = false, ogImage, jsonLd = [] } = Astro.props;
+const signupHref = noForm ? `/kontakty/${SIGNUP_ANCHOR}` : SIGNUP_ANCHOR;
+const site = await getSite();
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const robots = INDEXING && !noindex ? 'index,follow' : 'noindex,nofollow';
+const fullTitle = Astro.url.pathname === '/' ? `${site.fullName} — плавание для детей и взрослых с особенностями развития | Москва` : `${title} | ${site.name}, Москва`;
+
+const og = await getImage({ src: ogImage ?? logo, width: 1200, format: 'jpg', quality: 82 });
+const ogUrl = new URL(og.src, Astro.site).href;
+
+const org = {
+  '@context': 'https://schema.org',
+  '@type': ['SportsClub', 'LocalBusiness'],
+  '@id': new URL('/#club', Astro.site).href,
+  name: site.fullName,
+  alternateName: site.name,
+  slogan: site.slogan,
+  url: new URL('/', Astro.site).href,
+  logo: new URL((await getImage({ src: logo, width: 512, format: 'png' })).src, Astro.site).href,
+  telephone: site.phone.replace(/[^\d+]/g, ''),
+  email: site.email,
+  areaServed: { '@type': 'City', name: site.city },
+  address: { '@type': 'PostalAddress', addressLocality: site.city, addressCountry: 'RU' },
+  sameAs: [site.vk, site.telegram],
+  sport: ['Плавание', 'Адаптивное плавание', 'Гидрореабилитация'],
+  taxID: site.inn,
+};
+const ld = [org, ...jsonLd];
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#e6f7f6" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    {INDEXING && <link rel="sitemap" href="/sitemap-index.xml" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content={site.fullName} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+  </head>
+  <body class="flex min-h-dvh flex-col overflow-x-clip">
+    <a href="#main" class="skip-link">Перейти к содержанию</a>
+    <Header site={site} signupHref={signupHref} />
+    <main id="main" class="flex-1" tabindex="-1">
+      <slot />
+    </main>
+    <Footer site={site} />
+    {!hideStickyCta && <StickyCta signupHref={signupHref} />}
+    {YM_ID && <CookieNotice ymId={YM_ID} />}
+
+    <script>
+      // Плавное появление блоков при скролле. Без JS и при reduced-motion блоки видны сразу.
+      const items = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      if ('IntersectionObserver' in window && items.length) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add('is-visible');
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+        );
+        items.forEach((el) => io.observe(el));
+      } else {
+        items.forEach((el) => el.classList.add('is-visible'));
+      }
+    </script>
+  </body>
+</html>

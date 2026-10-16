@@ -1,0 +1,49 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import LeadForm from '../components/LeadForm.astro';
+import { getSite } from '../lib/site';
+
+const site = await getSite();
+const channels = [
+  { href: site.telegram, label: 'Telegram', value: 'Написать в Telegram', icon: 'telegram', ext: true },
+  { href: site.max, label: 'Max', value: 'Написать в Max', icon: 'chat', ext: true },
+  { href: `mailto:${site.email}`, label: 'Почта', value: site.email, icon: 'mail', ext: false },
+  { href: site.phoneHref, label: 'Телефон', value: site.phone, icon: 'phone', ext: false },
+  { href: site.vk, label: 'ВКонтакте', value: 'vk.com/yaplavau', icon: 'vk', ext: true },
+] as const;
+const firstMessage = ['Фамилию и имя ребёнка', 'Имя родителя', 'Возраст ребёнка', 'Краткий рассказ о ребёнке', 'Опыт плавания (если был)'];
+---
+
+<Base title="Контакты" description="Как связаться с клубом «Я Плаваю»: телефон +7 (993) 316-58-24, Telegram, Max, почта ya-plavau@yandex.ru. Запись на пробное занятие по плаванию в Москве.">
+  <PageHero title="Контакты" lead={site.contactNote} />
+
+  <section class="pb-16 sm:pb-24" aria-label="Способы связи">
+    <div class="container-page grid gap-8 lg:grid-cols-[1.3fr_1fr]">
+      <ul class="grid gap-4 sm:grid-cols-2">
+        {channels.map((c, i) => (
+          <li class:list={[i === 0 && 'sm:col-span-2']} data-reveal style={`--reveal-delay:${i * 60}ms`}>
+            <a href={c.href} rel={c.ext ? 'noopener' : undefined} class:list={['card card-hover flex h-full min-h-24 items-center gap-4 p-5 text-ink no-underline', i === 0 && 'bg-gradient-to-br from-white to-sky-soft']}>
+              <span class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-foam text-sea"><Icon name={c.icon} /></span>
+              <span>
+                <span class="block text-sm text-ink-soft">{c.label}{i === 0 && ' · администратор'}</span>
+                <span class="block text-lg font-semibold whitespace-nowrap">{c.value}</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div class="card p-6 sm:p-8" data-reveal>
+        <h2 class="text-2xl">В первом сообщении просьба указать</h2>
+        <ul class="mt-5 grid gap-3">
+          {firstMessage.map((x) => <li class="flex gap-3"><Icon name="check" size={20} class="mt-0.5 shrink-0 text-sea" />{x}</li>)}
+        </ul>
+        <div class="lane mt-8 w-full opacity-60" aria-hidden="true"></div>
+        <p class="mt-6 text-sm text-ink-soft">{site.operator}<br />ОГРНИП {site.ogrnip} · ИНН {site.inn}</p>
+      </div>
+    </div>
+  </section>
+
+  <LeadForm />
+</Base>

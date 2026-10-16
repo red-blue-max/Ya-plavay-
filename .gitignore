@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+.claude/
+# Секреты и данные PHP-обработчика (появятся на этапе «форма»)
+server/config.php
+server/storage/
+# Рабочие файлы выгрузки
+assets/photos/_jobs.txt
+Thumbs.db
+.DS_Store

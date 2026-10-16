@@ -1,0 +1,79 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Photo from '../components/Photo.astro';
+import Icon from '../components/Icon.astro';
+import Wave from '../components/Wave.astro';
+import CoachCard from '../components/CoachCard.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import LeadForm from '../components/LeadForm.astro';
+import { photos } from '../lib/photos';
+
+const coaches = await getCollection('coaches');
+const tasks = [
+  { icon: 'heart', text: 'Гидрореабилитация (содействие реабилитационным мероприятиям)' },
+  { icon: 'medal', text: 'Подготовка детей к спортивному плаванию' },
+  { icon: 'star', text: 'Проведение соревнований по плаванию для всех детей' },
+  { icon: 'users', text: 'Приобщение к занятиям физической культурой' },
+] as const;
+const people = coaches.map((c) => ({
+  '@type': 'Person',
+  name: c.data.name,
+  jobTitle: c.data.role,
+  worksFor: { '@id': new URL('/#club', Astro.site).href },
+}));
+---
+
+<Base
+  title="О клубе и команда тренеров"
+  description="«Я Плаваю» — спортивный клуб в Москве: учим плаванию детей и подростков с нарушениями опорно-двигательного аппарата, ментальными нарушениями, нарушениями слуха и зрения. Тренеры с образованием в адаптивной физкультуре."
+  ogImage={photos.selfie.src}
+  jsonLd={people}
+>
+  <PageHero
+    title="О клубе"
+    lead="«Я Плаваю» — спортивный клуб, который учит плавать детей и подростков с нарушениями опорно-двигательного аппарата, ментальными нарушениями, нарушениями слуха и зрения."
+  />
+
+  <section class="pb-16 sm:pb-24" aria-labelledby="goal-title">
+    <div class="container-page grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+      <div data-reveal>
+        <h2 id="goal-title">Главная цель клуба — научить плавать каждого ребёнка</h2>
+        <p class="mt-6">В клубе работают тренеры с профильным образованием в адаптивной физической культуре и спортивным плавательным прошлым. Это помогает им чувствовать, как ребёнку двигаться в воде, и учить плавать детей даже с тяжёлыми нарушениями.</p>
+        <p class="mt-4">На занятиях — индивидуальный подход: для каждого ребёнка строим свой курс обучения. Перед началом тренировок тестируем плавательные навыки и физическое развитие, чтобы объективно оценивать результат.</p>
+        <p class="mt-4 font-semibold">Будем рады увидеть вашего ребёнка и вас на наших тренировках!</p>
+      </div>
+      <Photo src={photos.gruppa.src} alt={photos.gruppa.alt} ratio="4/5" frame="sun" position="attention" class="mx-auto w-full max-w-md" sizes="(min-width: 1024px) 40vw, 90vw" />
+    </div>
+  </section>
+
+  <Wave class="text-foam" variant={1} />
+  <section class="bg-foam pt-8 pb-16 sm:pb-24" aria-labelledby="tasks-title">
+    <div class="container-page">
+      <SectionHeading id="tasks-title" title="Задачи клуба" />
+      <ul class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {tasks.map((t, i) => (
+          <li class="card p-6" data-reveal style={`--reveal-delay:${i * 80}ms`}>
+            <span class="flex size-12 items-center justify-center rounded-2xl bg-sky-soft text-sea"><Icon name={t.icon} /></span>
+            <p class="mt-4 font-semibold">{t.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+  <Wave class="-mt-px rotate-180 text-foam" variant={2} />
+
+  <section id="komanda" class="section scroll-mt-20" aria-labelledby="team-title">
+    <div class="container-page">
+      <SectionHeading id="team-title" title="Наша команда" lead="Нажмите «Образование и опыт», чтобы увидеть дипломы, курсы и стаж каждого тренера." />
+      <ul class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {coaches.map((c, i) => (
+          <li data-reveal style={`--reveal-delay:${(i % 4) * 70}ms`}><CoachCard coach={c.data} /></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <LeadForm />
+</Base>

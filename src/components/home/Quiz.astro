@@ -1,0 +1,221 @@
+---
+// Подбор занятия за 3 вопроса. Ответы обрабатываются только в браузере и никуда не отправляются.
+// В форму записи передаётся только название рекомендованного направления.
+import { getCollection } from 'astro:content';
+import Icon from '../Icon.astro';
+import Wave from '../Wave.astro';
+
+const directions = await getCollection('directions');
+const dir = Object.fromEntries(directions.map((d) => [d.id, { title: d.data.title, forWhom: d.data.forWhom }]));
+
+// ===== Настройки логики (можно менять без правки скрипта) =====
+const rules = {
+  // Берём ли малышей до 2 лет на индивидуальные (вопрос владельцу №8). false — «Напишите нам».
+  individualUnder2: false,
+  // Проводятся ли индивидуальные для взрослых (вопрос владельцу №9). false — «Напишите нам».
+  individualAdults: false,
+};
+
+const questions = [
+  {
+    name: 'age',
+    title: 'Кто будет заниматься?',
+    options: [['u2', 'До 2 лет'], ['2-10', '2–10 лет'], ['11-17', '11–17 лет'], ['18', 'Взрослый (18+)']],
+  },
+  {
+    name: 'swim',
+    title: 'Как сейчас с водой?',
+    options: [['no', 'Пока не плавает или боится воды'], ['support', 'Держится на воде с поддержкой'], ['yes', 'Уверенно плавает']],
+  },
+  {
+    name: 'need',
+    title: 'Что важно учесть?',
+    options: [
+      ['motor', 'Двигательные нарушения, в том числе ДЦП'],
+      ['ras', 'РАС'],
+      ['mental', 'Синдром Дауна, ЗПР, ментальные нарушения'],
+      ['sensory', 'Нарушения слуха или зрения'],
+      ['skip', 'Не хочу указывать'],
+    ],
+  },
+];
+---
+
+<section id="podbor" class="relative bg-foam pt-6 pb-20 sm:pb-28" aria-labelledby="quiz-title">
+  <div class="container-page">
+    <div class="card mx-auto max-w-3xl p-5 sm:p-10" data-reveal>
+      <h2 id="quiz-title">Какое занятие подойдёт?</h2>
+      <p class="lead mt-3">Ответьте на 3 вопроса, и мы подскажем, с чего начать. Ответы остаются в браузере и никуда не отправляются.</p>
+
+      <form class="mt-8" data-quiz data-rules={JSON.stringify(rules)} data-dirs={JSON.stringify(dir)} novalidate>
+        <!-- Прогресс в виде дорожки бассейна -->
+        <div class="mb-6 flex items-center gap-3" aria-hidden="true" data-quiz-progress hidden>
+          <div class="relative h-2 flex-1 overflow-hidden rounded-full bg-sky-soft">
+            <div class="lane absolute inset-y-0 left-0 w-1/3 !h-2 transition-[width] duration-500" data-quiz-bar></div>
+          </div>
+          <span class="text-sm font-semibold text-ink-soft tabular-nums" data-quiz-count>1 из 3</span>
+        </div>
+
+        {questions.map((q, i) => (
+          <fieldset class="quiz-step" data-step={i}>
+            <legend class="font-display text-lg font-semibold sm:text-xl">
+              <span class="sr-only">Вопрос {i + 1} из 3. </span>{q.title}
+            </legend>
+            <div class="mt-4 grid gap-2.5 sm:grid-cols-2">
+              {q.options.map(([value, label]) => (
+                <label class="quiz-option">
+                  <input type="radio" name={q.name} value={value} class="peer sr-only" />
+                  <span class="flex min-h-14 cursor-pointer items-center gap-3 rounded-2xl bg-cream px-4 py-3 font-medium ring-2 ring-transparent transition peer-checked:bg-white peer-checked:ring-sea peer-focus-visible:ring-ink hover:bg-white">
+                    <span class="quiz-dot flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-ink/25 bg-white text-white" aria-hidden="true"><Icon name="check" size={14} /></span>
+                    {label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ))}
+
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-3" data-quiz-nav hidden>
+          <button type="button" class="btn btn-ghost -ml-3" data-quiz-back>← Назад</button>
+          <button type="button" class="btn btn-secondary ml-auto" data-quiz-next disabled>Далее →</button>
+        </div>
+
+        <noscript>
+          <p class="mt-6 rounded-2xl bg-sun-soft p-4">Чтобы получить подсказку, включите JavaScript. Или посмотрите <a href="/zanyatiya/">все направления</a>.</p>
+        </noscript>
+      </form>
+
+      <div data-quiz-result hidden tabindex="-1" class="mt-2 outline-none">
+        <div class="rounded-3xl bg-gradient-to-br from-sky-soft to-foam p-6 sm:p-8">
+          <p class="eyebrow"><Icon name="sparkle" size={18} />Вам подойдут</p>
+          <h3 class="mt-2 text-2xl sm:text-3xl" data-r-title></h3>
+          <p class="mt-3 text-ink-soft" data-r-text></p>
+          <p class="mt-4 hidden text-ink-soft" data-r-alt-wrap>Также можно: <a href="#" data-r-alt></a></p>
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+            <a href="#zapis" class="btn btn-primary" data-r-signup>Записаться</a>
+            <a href="/zanyatiya/" class="btn btn-secondary" data-r-more>Подробнее о занятии</a>
+          </div>
+        </div>
+        <p class="mt-4 text-sm text-ink-soft">Это предварительный совет. Точнее подберём на пробном занятии.</p>
+        <button type="button" class="btn btn-ghost mt-2 -ml-3" data-quiz-reset>Пройти заново</button>
+      </div>
+
+      <p class="sr-only" aria-live="polite" data-quiz-live></p>
+    </div>
+  </div>
+</section>
+<Wave class="-mt-px rotate-180 text-foam" variant={3} />
+
+<style>
+  .quiz-option input:checked + span .quiz-dot { background: var(--color-sea); border-color: var(--color-sea); }
+  :global(.js) .quiz-step:not(.is-active) { display: none; }
+  :global(.js) .quiz-step.is-active { animation: step-in 0.45s var(--ease-wave); }
+  @keyframes step-in { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+</style>
+
+<script>
+  type Dirs = Record<string, { title: string; forWhom: string }>;
+  const CONTACT = 'contact';
+
+  function recommend(a: Record<string, string>, rules: { individualUnder2: boolean; individualAdults: boolean }) {
+    const { age, swim, need } = a;
+    const swims = swim === 'yes';
+    const known = need !== 'skip';
+    if (age === 'u2') return { main: rules.individualUnder2 ? 'individualnye' : CONTACT };
+    if (age === '18') {
+      if (swims) return { main: 'parafridajving', alt: 'watsu' };
+      return { main: rules.individualAdults ? 'individualnye' : CONTACT, alt: 'watsu' };
+    }
+    if (!swims) {
+      return age === '2-10' ? { main: 'individualnye', alt: 'halliwick' } : { main: 'individualnye' };
+    }
+    // Уверенно плавает, ребёнок или подросток
+    const main = known ? 'gruppovye' : 'individualnye';
+    const alt = age === '11-17' ? 'parafridajving' : known ? 'individualnye' : 'gruppovye';
+    return { main, alt };
+  }
+
+  const form = document.querySelector<HTMLFormElement>('[data-quiz]');
+  if (form) {
+    const rules = JSON.parse(form.dataset.rules!);
+    const dirs: Dirs = JSON.parse(form.dataset.dirs!);
+    const steps = [...form.querySelectorAll<HTMLFieldSetElement>('.quiz-step')];
+    const progress = form.querySelector<HTMLElement>('[data-quiz-progress]')!;
+    const bar = form.querySelector<HTMLElement>('[data-quiz-bar]')!;
+    const count = form.querySelector<HTMLElement>('[data-quiz-count]')!;
+    const nav = form.querySelector<HTMLElement>('[data-quiz-nav]')!;
+    const result = document.querySelector<HTMLElement>('[data-quiz-result]')!;
+    const live = document.querySelector<HTMLElement>('[data-quiz-live]')!;
+    const back = form.querySelector<HTMLButtonElement>('[data-quiz-back]')!;
+    const next = form.querySelector<HTMLButtonElement>('[data-quiz-next]')!;
+    let current = 0;
+    let pointer = false;
+    const advance = () => (current < steps.length - 1 ? show(current + 1) : finish());
+
+    const show = (i: number, focus = true) => {
+      current = i;
+      steps.forEach((s, k) => s.classList.toggle('is-active', k === i));
+      progress.hidden = false;
+      bar.style.width = `${((i + 1) / steps.length) * 100}%`;
+      count.textContent = `${i + 1} из ${steps.length}`;
+      nav.hidden = false;
+      back.style.visibility = i === 0 ? 'hidden' : '';
+      next.disabled = !steps[i].querySelector('input:checked');
+      next.textContent = i === steps.length - 1 ? 'Показать результат' : 'Далее →';
+      if (focus) steps[i].querySelector<HTMLInputElement>('input:checked, input')?.focus();
+    };
+
+    const finish = () => {
+      const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+      const r = recommend(data, rules);
+      const set = (sel: string, v: string) => (result.querySelector<HTMLElement>(sel)!.textContent = v);
+      const signup = result.querySelector<HTMLAnchorElement>('[data-r-signup]')!;
+      const more = result.querySelector<HTMLAnchorElement>('[data-r-more]')!;
+      if (r.main === CONTACT) {
+        set('[data-r-title]', 'Напишите нам — подскажем');
+        set('[data-r-text]', 'Расскажите о возрасте и опыте плавания — тренер подберёт подходящий формат занятий.');
+        signup.textContent = 'Оставить заявку';
+        signup.dataset.direction = '';
+        more.hidden = true;
+      } else {
+        set('[data-r-title]', dirs[r.main].title);
+        set('[data-r-text]', dirs[r.main].forWhom);
+        signup.textContent = 'Записаться';
+        signup.dataset.direction = dirs[r.main].title;
+        more.hidden = false;
+        more.href = `/zanyatiya/#${r.main}`;
+      }
+      const altWrap = result.querySelector<HTMLElement>('[data-r-alt-wrap]')!;
+      const alt = result.querySelector<HTMLAnchorElement>('[data-r-alt]')!;
+      altWrap.classList.toggle('hidden', !r.alt);
+      if (r.alt) { alt.textContent = dirs[r.alt].title; alt.href = `/zanyatiya/#${r.alt}`; }
+      form.hidden = true;
+      result.hidden = false;
+      result.focus();
+      live.textContent = `Рекомендация: ${result.querySelector('[data-r-title]')!.textContent}`;
+    };
+
+    // Мышью/пальцем — переход сразу после выбора. С клавиатуры стрелки только выбирают,
+    // а переход — кнопкой «Далее», чтобы шаг не «убегал» из-под фокуса.
+    form.addEventListener('pointerdown', () => (pointer = true));
+    form.addEventListener('keydown', () => (pointer = false));
+    form.addEventListener('change', () => {
+      next.disabled = false;
+      if (pointer) setTimeout(advance, 260); // пауза, чтобы было видно выбранный вариант
+    });
+    next.addEventListener('click', advance);
+    back.addEventListener('click', () => show(Math.max(0, current - 1)));
+    document.querySelector('[data-quiz-reset]')?.addEventListener('click', () => {
+      form.reset();
+      result.hidden = true;
+      form.hidden = false;
+      show(0);
+    });
+    // Передаём направление в форму записи
+    result.querySelector('[data-r-signup]')?.addEventListener('click', (e) => {
+      const d = (e.currentTarget as HTMLElement).dataset.direction ?? '';
+      document.dispatchEvent(new CustomEvent('lead:direction', { detail: d }));
+    });
+    show(0, false);
+  }
+</script>

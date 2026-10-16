@@ -1,0 +1,197 @@
+@import "tailwindcss";
+@import "@fontsource-variable/onest";
+@import "@fontsource-variable/unbounded/wght.css";
+
+/* ------------------------------------------------------------------
+   Дизайн-токены «Свет сквозь воду».
+   Контраст по WCAG проверен для пар: ink/cream 11.6, ink-soft/cream 7.1,
+   sea/white 6.0, ink/coral 5.1, ink/sun 6.8, ink/foam 10.8.
+   ------------------------------------------------------------------ */
+@theme {
+  --color-cream: #fffbf5;
+  --color-foam: #e6f7f6;
+  --color-sky: #bde4ff;
+  --color-sky-soft: #e3f3ff;
+  --color-aqua: #5cc6c0;
+  --color-aqua-deep: #2fa7a6;
+  --color-sea: #0a6e78;
+  --color-ink: #0b3b4f;
+  --color-ink-soft: #3d5a6b;
+  --color-coral: #ff8a4c;
+  --color-coral-hover: #ff7a36;
+  --color-coral-soft: #ffe6d8;
+  --color-sun: #ffb547;
+  --color-sun-soft: #fff1d6;
+  --color-lane: #e8503a;
+
+  --font-sans: "Onest Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Unbounded Variable", "Onest Variable", system-ui, sans-serif;
+
+  --text-base: 1.125rem;
+  --text-base--line-height: 1.6;
+
+  --radius-card: 1.75rem;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgb(11 59 79 / 0.04), 0 8px 28px -6px rgb(11 59 79 / 0.1);
+  --shadow-lift: 0 2px 4px rgb(11 59 79 / 0.05), 0 18px 40px -10px rgb(11 59 79 / 0.18);
+  --shadow-cta: 0 8px 22px -8px rgb(255 122 54 / 0.7);
+
+  --ease-wave: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+  }
+  body {
+    @apply bg-cream font-sans text-base text-ink antialiased;
+    font-size: 1.0625rem; /* 17px на маленьких экранах */
+    text-rendering: optimizeLegibility;
+  }
+  @media (min-width: 640px) {
+    body { font-size: 1.125rem; }
+  }
+  h1, h2, h3 {
+    @apply font-display text-ink;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  h1 { font-size: clamp(2.1rem, 1.3rem + 4vw, 4.25rem); line-height: 1.08; }
+  h2 { font-size: clamp(1.6rem, 1.1rem + 2.2vw, 2.75rem); line-height: 1.15; }
+  h3 { font-size: clamp(1.15rem, 1rem + 0.6vw, 1.4rem); line-height: 1.3; font-weight: 600; }
+  p { text-wrap: pretty; }
+  a { @apply text-sea underline decoration-from-font underline-offset-3; }
+  a:hover { @apply decoration-2; }
+
+  /* Видимый фокус для клавиатуры на всех интерактивных элементах */
+  :focus-visible {
+    outline: 3px solid var(--color-ink);
+    outline-offset: 3px;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 0 6px var(--color-sun);
+  }
+
+  ::selection { background: var(--color-sky); color: var(--color-ink); }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-[75rem] px-4 sm:px-6 lg:px-8;
+  }
+  .section { @apply py-16 sm:py-24; }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-sm font-semibold tracking-wide text-sea uppercase;
+  }
+  .lead { @apply text-lg text-ink-soft sm:text-xl; line-height: 1.55; }
+
+  /* Кнопки: минимум 44px по высоте, текст тёмный на коралле (AA) */
+  .btn {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-center text-base leading-snug font-semibold no-underline transition sm:whitespace-nowrap;
+    transition-timing-function: var(--ease-wave);
+  }
+  .btn-primary {
+    @apply bg-coral text-ink;
+    box-shadow: var(--shadow-cta);
+  }
+  .btn-primary:hover { @apply bg-coral-hover -translate-y-0.5 text-ink; }
+  .btn-secondary {
+    @apply bg-white text-ink ring-2 ring-ink/15 ring-inset;
+  }
+  .btn-secondary:hover { @apply ring-sea text-ink; }
+  .btn-ghost { @apply text-sea; }
+  .btn-ghost:hover { @apply bg-foam; }
+
+  .card {
+    @apply rounded-[var(--radius-card)] bg-white;
+    box-shadow: var(--shadow-card);
+  }
+  .card-hover { @apply transition duration-300; }
+  .card-hover:hover { box-shadow: var(--shadow-lift); transform: translateY(-3px); }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-foam px-3 py-1 text-sm font-medium text-ink;
+  }
+
+  /* Фото: единое скругление, тёплый тон и смещённая цветная подложка */
+  .photo-frame { @apply relative isolate; }
+  .photo-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: var(--radius-card);
+    background: var(--frame-color, var(--color-foam));
+    transform: translate(0.75rem, 0.75rem) rotate(1.5deg);
+  }
+  .photo-frame img {
+    @apply h-full w-full rounded-[var(--radius-card)] object-cover;
+    filter: saturate(1.05) contrast(1.02);
+  }
+
+  /* «Дорожка бассейна»: фирменная красно-белая разделительная линия */
+  .lane {
+    height: 6px;
+    border-radius: 999px;
+    background: repeating-linear-gradient(90deg,
+      var(--color-lane) 0 14px, #fff 14px 20px, var(--color-sky) 20px 34px, #fff 34px 40px);
+    box-shadow: inset 0 0 0 1px rgb(11 59 79 / 0.06);
+  }
+
+  .skip-link {
+    @apply absolute left-4 top-0 z-[100] -translate-y-full rounded-b-xl bg-ink px-4 py-3 font-semibold text-white no-underline;
+  }
+  .skip-link:focus { @apply translate-y-0 text-white; }
+}
+
+/* Появление блоков при скролле (включается только при наличии JS) */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s var(--ease-wave), transform 0.7s var(--ease-wave);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.js [data-reveal].is-visible { opacity: 1; transform: none; }
+
+/* Анимация воды */
+@keyframes wave-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes caustic {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.55; }
+  50% { transform: translate3d(3%, -4%, 0) scale(1.08); opacity: 0.85; }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .js [data-reveal] { opacity: 1; transform: none; }
+}
+
+/* Юридические тексты: спокойная читабельная типографика */
+.legal { max-width: 46rem; }
+.legal h2 {
+  font-family: var(--font-sans);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+.legal p { margin-top: 0.85rem; }
+.legal ul { margin-top: 0.75rem; padding-left: 1.25rem; list-style: disc; }
+.legal li { margin-top: 0.35rem; }
+.legal li::marker { color: var(--color-aqua-deep); }
+.legal a { overflow-wrap: anywhere; }

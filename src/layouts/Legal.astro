@@ -1,0 +1,20 @@
+---
+// Шаблон юридической страницы. Тексты в src/legal/*.md перенесены со старого сайта без изменений.
+import Base from './Base.astro';
+import PageHero from '../components/PageHero.astro';
+
+interface Props { title: string; description: string; source: string }
+const { title, description, source } = Astro.props;
+---
+
+<Base title={title} description={description} hideStickyCta noForm>
+  <PageHero title={title} />
+  <section class="pb-28 sm:pb-32">
+    <div class="container-page">
+      <article class="legal card p-6 sm:p-10">
+        <slot />
+      </article>
+      <p class="mt-6 max-w-[46rem] text-sm text-ink-soft">Текст перенесён со страницы {source} без изменений.</p>
+    </div>
+  </section>
+</Base>

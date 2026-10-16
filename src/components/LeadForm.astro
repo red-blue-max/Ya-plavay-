@@ -1,0 +1,188 @@
+---
+// Форма записи на пробное занятие. Ставится внизу каждой основной страницы (якорь #zapis).
+// 152-ФЗ: медицинские данные не собираем; согласие — отдельный чекбокс, по умолчанию выключен.
+// Отправка: POST /api/lead.php (PHP, Timeweb). Без JS форма тоже работает — обычной отправкой.
+import Icon from './Icon.astro';
+import Wave from './Wave.astro';
+import { getSite } from '../lib/site';
+
+interface Props { title?: string; lead?: string }
+const {
+  title = 'Запишитесь на пробное занятие',
+  lead = 'Оставьте контакты. Мы свяжемся с вами и подберём бассейн, тренера и время.',
+} = Astro.props;
+const site = await getSite();
+const field = 'mt-2 block w-full min-h-13 rounded-2xl border-0 bg-white px-4 py-3 text-base text-ink ring-2 ring-ink/12 transition placeholder:text-ink-soft/70 focus:ring-sea focus:outline-none aria-[invalid=true]:ring-lane';
+---
+
+<Wave class="text-foam" variant={1} flip />
+<section id="zapis" class="scroll-mt-20 bg-foam pt-8 pb-20 sm:pb-28" aria-labelledby="zapis-title">
+  <div class="container-page grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+    <div data-reveal>
+      <h2 id="zapis-title">{title}</h2>
+      <p class="lead mt-4">{lead}</p>
+      <div class="mt-8 rounded-3xl bg-white/70 p-6 ring-1 ring-ink/5">
+        <p class="font-semibold">Удобнее написать самим?</p>
+        <ul class="mt-4 grid gap-2">
+          <li><a href={site.telegram} rel="noopener" class="inline-flex min-h-11 items-center gap-3 font-semibold no-underline"><span class="flex size-10 items-center justify-center rounded-full bg-sky-soft text-sea"><Icon name="telegram" size={20} /></span>Telegram</a></li>
+          <li><a href={site.max} rel="noopener" class="inline-flex min-h-11 items-center gap-3 font-semibold no-underline"><span class="flex size-10 items-center justify-center rounded-full bg-sky-soft text-xs font-bold text-sea">MAX</span>Max</a></li>
+          <li><a href={`mailto:${site.email}`} class="inline-flex min-h-11 items-center gap-3 font-semibold no-underline"><span class="flex size-10 items-center justify-center rounded-full bg-sky-soft text-sea"><Icon name="mail" size={20} /></span>{site.email}</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card p-5 sm:p-9" data-reveal>
+      <form action="/api/lead.php" method="post" class="grid gap-5" data-lead-form novalidate>
+        <input type="hidden" name="page" value={Astro.url.pathname} />
+        <input type="hidden" name="t" value="" data-lead-time />
+        <input type="hidden" name="direction" value="" data-lead-direction />
+        <!-- Ловушка для ботов: человек это поле не видит и не заполняет -->
+        <div class="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
+          <label>Сайт <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+        <p class="hidden items-center justify-between gap-3 rounded-2xl bg-sky-soft px-4 py-3" data-lead-direction-chip>
+          <span>Интересует: <strong data-lead-direction-text></strong></span>
+          <button type="button" class="flex size-11 items-center justify-center rounded-full hover:bg-white" aria-label="Убрать направление" data-lead-direction-clear><Icon name="close" size={18} /></button>
+        </p>
+
+        <div>
+          <label for="lead-name" class="font-semibold">Ваше имя</label>
+          <input id="lead-name" name="name" type="text" required maxlength="80" autocomplete="given-name" class={field} aria-describedby="lead-name-err" />
+          <p id="lead-name-err" class="mt-1.5 hidden text-sm font-medium text-[#b3361f]" data-error>Напишите, как к вам обращаться</p>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label for="lead-phone" class="font-semibold">Телефон</label>
+            <input id="lead-phone" name="phone" type="tel" required inputmode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__" maxlength="25" class={field} aria-describedby="lead-phone-err" />
+            <p id="lead-phone-err" class="mt-1.5 hidden text-sm font-medium text-[#b3361f]" data-error>Проверьте номер: нужно 10 цифр после +7</p>
+          </div>
+          <div>
+            <label for="lead-age" class="font-semibold">Возраст ребёнка</label>
+            <input id="lead-age" name="age" type="text" required maxlength="20" autocomplete="off" class={field} aria-describedby="lead-age-hint lead-age-err" />
+            <p id="lead-age-hint" class="mt-1.5 text-sm text-ink-soft">Например, 6 лет; для взрослого — 18+</p>
+            <p id="lead-age-err" class="mt-1 hidden text-sm font-medium text-[#b3361f]" data-error>Укажите возраст</p>
+          </div>
+        </div>
+
+        <div>
+          <label for="lead-comment" class="font-semibold">Комментарий <span class="font-normal text-ink-soft">(необязательно)</span></label>
+          <textarea id="lead-comment" name="comment" rows="3" maxlength="1000" class={`${field} resize-y`} aria-describedby="lead-comment-hint"></textarea>
+          <p id="lead-comment-hint" class="mt-1.5 flex gap-2 text-sm text-ink-soft"><Icon name="shield" size={18} class="shrink-0 text-sea" />Например, удобный бассейн или время. Пожалуйста, не указывайте диагноз и медицинские сведения — обсудим их лично.</p>
+        </div>
+
+        <div>
+          <label class="flex cursor-pointer gap-3">
+            <input type="checkbox" name="consent" value="1" required class="peer mt-0.5 size-6 shrink-0 cursor-pointer accent-[var(--color-sea)]" aria-describedby="lead-consent-err" />
+            <span class="text-[0.95rem]">Я даю <a href="/soglasie_pers/" target="_blank">согласие на обработку персональных данных</a> и принимаю <a href="/politicakonfi/" target="_blank">политику конфиденциальности</a>.</span>
+          </label>
+          <p id="lead-consent-err" class="mt-1.5 hidden text-sm font-medium text-[#b3361f]" data-error>Без согласия мы не можем принять заявку</p>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full sm:w-auto sm:justify-self-start" data-lead-submit>
+          <span data-lead-label>Отправить заявку</span>
+        </button>
+
+        <p class="text-sm text-ink-soft">Оператор персональных данных — {site.operatorShort}, ИНН {site.inn}, ОГРНИП {site.ogrnip}.</p>
+      </form>
+
+      <div class="hidden text-center" data-lead-success tabindex="-1" role="status">
+        <span class="mx-auto flex size-16 items-center justify-center rounded-full bg-foam text-sea"><Icon name="check" size={32} /></span>
+        <p class="mt-5 font-display text-2xl font-semibold">Спасибо! Заявка отправлена.</p>
+        <p class="mt-2 text-ink-soft">Мы скоро с вами свяжемся.</p>
+      </div>
+      <p class="mt-4 hidden rounded-2xl bg-coral-soft p-4" data-lead-fail role="alert">
+        Не получилось отправить заявку. Попробуйте ещё раз или напишите нам в <a href={site.telegram} rel="noopener">Telegram</a>.
+      </p>
+    </div>
+  </div>
+</section>
+<Wave class="-mt-px rotate-180 text-foam" variant={3} />
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-lead-form]');
+  if (form) {
+    const time = form.querySelector<HTMLInputElement>('[data-lead-time]')!;
+    time.value = String(Date.now());
+
+    // Направление из подбора занятия / карточек
+    const dirInput = form.querySelector<HTMLInputElement>('[data-lead-direction]')!;
+    const chip = form.querySelector<HTMLElement>('[data-lead-direction-chip]')!;
+    const setDirection = (d: string) => {
+      dirInput.value = d;
+      form.querySelector('[data-lead-direction-text]')!.textContent = d;
+      chip.classList.toggle('hidden', !d);
+      chip.classList.toggle('flex', !!d);
+    };
+    document.addEventListener('lead:direction', (e) => setDirection((e as CustomEvent<string>).detail));
+    document.querySelectorAll<HTMLElement>('[data-signup-direction]').forEach((a) =>
+      a.addEventListener('click', () => setDirection(a.dataset.signupDirection ?? '')),
+    );
+    form.querySelector('[data-lead-direction-clear]')?.addEventListener('click', () => setDirection(''));
+
+    // Маска телефона: +7 (XXX) XXX-XX-XX
+    const phone = form.querySelector<HTMLInputElement>('#lead-phone')!;
+    const digits = (v: string) => {
+      let d = v.replace(/\D/g, '');
+      if (d.startsWith('8') || d.startsWith('7')) d = d.slice(1);
+      return d.slice(0, 10);
+    };
+    phone.addEventListener('input', () => {
+      const d = digits(phone.value);
+      if (!d) { phone.value = ''; return; }
+      let out = '+7 (' + d.slice(0, 3);
+      if (d.length >= 3) out += ') ' + d.slice(3, 6);
+      if (d.length >= 6) out += '-' + d.slice(6, 8);
+      if (d.length >= 8) out += '-' + d.slice(8, 10);
+      phone.value = out;
+    });
+
+    const checks: [HTMLInputElement | HTMLTextAreaElement, () => boolean][] = [
+      [form.querySelector('#lead-name')!, () => (form.querySelector<HTMLInputElement>('#lead-name')!.value.trim().length >= 2)],
+      [phone, () => digits(phone.value).length === 10],
+      [form.querySelector('#lead-age')!, () => form.querySelector<HTMLInputElement>('#lead-age')!.value.trim().length > 0],
+      [form.querySelector('[name=consent]')!, () => form.querySelector<HTMLInputElement>('[name=consent]')!.checked],
+    ];
+    const validate = (el: HTMLElement, ok: boolean) => {
+      el.setAttribute('aria-invalid', String(!ok));
+      const errId = el.getAttribute('aria-describedby')?.split(' ').find((id) => id.endsWith('-err'));
+      if (errId) document.getElementById(errId)?.classList.toggle('hidden', ok);
+    };
+    checks.forEach(([el, ok]) => el.addEventListener('blur', () => el.getAttribute('aria-invalid') && validate(el, ok())));
+    checks.forEach(([el, ok]) => el.addEventListener('change', () => el.getAttribute('aria-invalid') && validate(el, ok())));
+
+    const submit = form.querySelector<HTMLButtonElement>('[data-lead-submit]')!;
+    const label = form.querySelector<HTMLElement>('[data-lead-label]')!;
+    const success = document.querySelector<HTMLElement>('[data-lead-success]')!;
+    const fail = document.querySelector<HTMLElement>('[data-lead-fail]')!;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      let firstBad: HTMLElement | null = null;
+      for (const [el, ok] of checks) {
+        const good = ok();
+        validate(el, good);
+        if (!good && !firstBad) firstBad = el;
+      }
+      if (firstBad) { firstBad.focus(); return; }
+
+      submit.disabled = true;
+      label.textContent = 'Отправляем…';
+      fail.classList.add('hidden');
+      try {
+        const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || !json.ok) throw new Error(json.error || 'send failed');
+        form.classList.add('hidden');
+        success.classList.remove('hidden');
+        success.focus();
+      } catch {
+        fail.classList.remove('hidden');
+      } finally {
+        submit.disabled = false;
+        label.textContent = 'Отправить заявку';
+      }
+    });
+  }
+</script>

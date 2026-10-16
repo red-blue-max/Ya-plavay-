@@ -1,0 +1,93 @@
+---
+// Фотогалерея: квадратные превью (AVIF/WebP, lazy) + просмотр в <dialog>.
+// Без JS превью — обычные ссылки на крупное фото.
+import { getImage } from 'astro:assets';
+
+interface Props {
+  images: { src: ImageMetadata; alt: string }[];
+  label: string;
+  /** Сколько фото показать сразу; остальные — по кнопке «Показать ещё» */
+  initial?: number;
+}
+const { images, label, initial = 12 } = Astro.props;
+const items = await Promise.all(
+  images.map(async (img) => {
+    const [thumbAvif, thumbWebp, large] = await Promise.all([
+      getImage({ src: img.src, width: 420, height: 420, fit: 'cover', position: 'attention', format: 'avif', quality: 60 }),
+      getImage({ src: img.src, width: 420, height: 420, fit: 'cover', position: 'attention', format: 'webp', quality: 68 }),
+      getImage({ src: img.src, width: Math.min(img.src.width, 1600), format: 'webp', quality: 78 }),
+    ]);
+    return { alt: img.alt, thumbAvif: thumbAvif.src, thumbWebp: thumbWebp.src, large: large.src };
+  }),
+);
+---
+
+<div data-gallery>
+  <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4" aria-label={label}>
+    {items.map((it, i) => (
+      <li class:list={[i >= initial && 'hidden']} data-gallery-more={i >= initial ? '' : undefined}>
+        <a href={it.large} class="group block overflow-hidden rounded-3xl bg-foam" data-gallery-item={i} aria-label={`Открыть фото: ${it.alt}`}>
+          <picture>
+            <source srcset={it.thumbAvif} type="image/avif" />
+            <img src={it.thumbWebp} alt={it.alt} width="420" height="420" loading="lazy" decoding="async" class="aspect-square w-full object-cover transition duration-500 group-hover:scale-105" />
+          </picture>
+        </a>
+      </li>
+    ))}
+  </ul>
+  {items.length > initial && (
+    <button type="button" class="btn btn-secondary mt-8" data-gallery-show>Показать ещё {items.length - initial} фото</button>
+  )}
+
+  <dialog class="m-auto max-h-[92dvh] w-[min(100vw-1.5rem,72rem)] overflow-visible rounded-3xl bg-transparent p-0 backdrop:bg-ink/85" data-gallery-dialog aria-label="Просмотр фото">
+    <figure class="relative">
+      <img src="" alt="" class="mx-auto max-h-[82dvh] w-auto rounded-3xl object-contain" data-gallery-img />
+      <figcaption class="mt-3 text-center text-sm text-white" data-gallery-caption></figcaption>
+    </figure>
+    <div class="mt-3 flex justify-center gap-3">
+      <button type="button" class="btn bg-white text-ink" data-gallery-prev aria-label="Предыдущее фото">←</button>
+      <button type="button" class="btn bg-white text-ink" data-gallery-close>Закрыть</button>
+      <button type="button" class="btn bg-white text-ink" data-gallery-next aria-label="Следующее фото">→</button>
+    </div>
+  </dialog>
+  <script type="application/json" data-gallery-data set:html={JSON.stringify(items.map((i) => ({ src: i.large, alt: i.alt })))} />
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((root) => {
+    const data: { src: string; alt: string }[] = JSON.parse(root.querySelector('[data-gallery-data]')!.textContent!);
+    const dialog = root.querySelector<HTMLDialogElement>('[data-gallery-dialog]')!;
+    const img = root.querySelector<HTMLImageElement>('[data-gallery-img]')!;
+    const cap = root.querySelector<HTMLElement>('[data-gallery-caption]')!;
+    let i = 0;
+    const show = (n: number) => {
+      i = (n + data.length) % data.length;
+      img.src = data[i].src;
+      img.alt = data[i].alt;
+      cap.textContent = `${i + 1} из ${data.length}`;
+    };
+    root.querySelectorAll<HTMLAnchorElement>('[data-gallery-item]').forEach((a) =>
+      a.addEventListener('click', (e) => {
+        if (typeof dialog.showModal !== 'function') return;
+        e.preventDefault();
+        show(Number(a.dataset.galleryItem));
+        dialog.showModal();
+      }),
+    );
+    root.querySelector('[data-gallery-prev]')?.addEventListener('click', () => show(i - 1));
+    root.querySelector('[data-gallery-next]')?.addEventListener('click', () => show(i + 1));
+    root.querySelector('[data-gallery-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => e.target === dialog && dialog.close());
+    document.addEventListener('keydown', (e) => {
+      if (!dialog.open) return;
+      if (e.key === 'ArrowLeft') show(i - 1);
+      if (e.key === 'ArrowRight') show(i + 1);
+    });
+    root.querySelector<HTMLButtonElement>('[data-gallery-show]')?.addEventListener('click', (e) => {
+      const more = root.querySelectorAll<HTMLElement>('[data-gallery-more]');
+      more.forEach((li) => li.classList.remove('hidden'));
+      (e.currentTarget as HTMLElement).remove();
+      more[0]?.querySelector('a')?.focus(); // фокус на первое новое фото
+    });
+  });
+</script>

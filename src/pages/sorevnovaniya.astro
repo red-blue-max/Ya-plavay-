@@ -1,0 +1,119 @@
+---
+import { getEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import Wave from '../components/Wave.astro';
+import Gallery from '../components/Gallery.astro';
+import Photo from '../components/Photo.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import LeadForm from '../components/LeadForm.astro';
+import { photos } from '../lib/photos';
+import { getSite } from '../lib/site';
+
+const site = await getSite();
+const c = (await getEntry('competitions', 'main'))!.data;
+const fmt = (d: Date) => d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).replace(' г.', ' года');
+const upcoming = c.nextDate && c.nextDate.getTime() >= new Date(new Date().toDateString()).getTime() ? c.nextDate : null;
+
+// Фото берутся из папок автоматически: просто положите файлы в src/images/sorevnovaniya/ или src/images/galereya/
+const load = (mods: Record<string, { default: ImageMetadata }>, alt: string) =>
+  Object.keys(mods).sort().map((k, i) => ({ src: mods[k].default, alt: `${alt}, фото ${i + 1}` }));
+const competitionPhotos = load(import.meta.glob('../images/sorevnovaniya/*.{jpg,jpeg,png,webp}', { eager: true }), 'Соревнования клуба «Я Плаваю»');
+const galleryPhotos = load(import.meta.glob('../images/galereya/*.{jpg,jpeg,png,webp}', { eager: true }), 'Занятия в клубе «Я Плаваю»');
+
+const event = upcoming && {
+  '@type': 'SportsEvent',
+  name: 'Соревнования по плаванию для всех детей',
+  startDate: upcoming.toISOString().slice(0, 10),
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  eventStatus: 'https://schema.org/EventScheduled',
+  location: { '@type': 'Place', name: 'Москва', address: 'Москва' },
+  organizer: { '@id': new URL('/#club', Astro.site).href },
+};
+---
+
+<Base
+  title="Соревнования по плаванию для всех детей и фотогалерея"
+  description="Два раза в год клуб «Я Плаваю» проводит соревнования по плаванию для детей от 4 лет и взрослых с особенностями развития. Программа, как подать заявку, протоколы и фото."
+  ogImage={photos.medalMama.src}
+  jsonLd={event ? [{ '@context': 'https://schema.org', ...event }] : []}
+>
+  <PageHero
+    title="Соревнования по плаванию для всех детей"
+    lead="Два раза в год наш клуб проводит соревнования по плаванию для детей от 4 лет и взрослых с любыми особенностями развития и любой тяжестью нарушений."
+  >
+    <p class="mt-8 inline-flex items-center gap-3 rounded-2xl bg-white/85 px-5 py-4 font-semibold ring-1 ring-ink/5">
+      <Icon name="star" class="text-sun" />
+      {upcoming ? <>Ближайшие соревнования пройдут {fmt(upcoming)}</> : 'Даты следующих соревнований уточняются'}
+    </p>
+  </PageHero>
+
+  <section class="pb-16 sm:pb-24">
+    <div class="container-page grid items-start gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+      <div>
+        <div class="card p-6 sm:p-8" data-reveal>
+          <h2 class="text-2xl sm:text-3xl">В заплывах участвуют все дети без исключения</h2>
+          <p class="mt-4">Даже если ребёнок не может проплыть дистанцию самостоятельно, он плывёт с сопровождением — с нашей поддержкой или с поддержкой своего тренера.</p>
+        </div>
+
+        <h2 class="mt-12 text-2xl sm:text-3xl" data-reveal>Программа соревнований</h2>
+        <ul class="mt-5 grid gap-3">
+          {c.program.map((p) => <li class="flex gap-3" data-reveal><Icon name="wave" class="mt-0.5 shrink-0 text-aqua-deep" />{p}</li>)}
+        </ul>
+
+        <h2 class="mt-12 text-2xl sm:text-3xl" data-reveal>Как принять участие</h2>
+        <ol class="mt-5 grid gap-4">
+          {c.requirements.map((r, i) => (
+            <li class="flex gap-4" data-reveal>
+              <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-coral font-semibold">{i + 1}</span>
+              <span class="pt-1">{r}</span>
+            </li>
+          ))}
+        </ol>
+        <p class="mt-6 rounded-2xl bg-sky-soft p-5" data-reveal>
+          Есть вопросы? Свяжитесь с главным судьёй — {c.judge}: {c.judgeChannels}, <a href={`tel:+7${c.judgePhone.replace(/\D/g, '').slice(1)}`} class="font-semibold whitespace-nowrap">{c.judgePhone}</a>.
+        </p>
+      </div>
+
+      <aside class="grid gap-6 lg:sticky lg:top-28" aria-label="Документы">
+        <Photo src={photos.medalMama.src} alt={photos.medalMama.alt} ratio="4/5" frame="sun" position="attention" class="hidden lg:block" sizes="34vw" />
+        <div class="card p-6 sm:p-7" data-reveal>
+          <h2 class="font-sans text-xl font-bold">Документы</h2>
+          <ul class="mt-4 grid gap-2">
+            {c.regulationsUrl && <li><a href={c.regulationsUrl} rel="noopener" class="flex min-h-12 items-center gap-3 font-semibold"><Icon name="doc" class="text-sea" />Положение о соревнованиях</a></li>}
+            {c.applicationUrl && <li><a href={c.applicationUrl} rel="noopener" class="flex min-h-12 items-center gap-3 font-semibold"><Icon name="doc" class="text-sea" />Заявка</a></li>}
+            {c.lastProtocol && <li><a href={c.lastProtocol.url} rel="noopener" class="flex min-h-12 items-center gap-3 font-semibold"><Icon name="medal" class="text-sea" />Итоговый протокол от {fmt(c.lastProtocol.date)}</a></li>}
+          </ul>
+          <p class="mt-4 text-sm text-ink-soft">Документы открываются на Яндекс.Диске. Заявку отправляйте на <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  {competitionPhotos.length > 0 && (
+    <>
+      <Wave class="text-foam" variant={2} />
+      <section class="bg-foam pt-8 pb-16 sm:pb-24" aria-labelledby="sorev-photos">
+        <div class="container-page">
+          <SectionHeading id="sorev-photos" title="Фото с соревнований" />
+          <div class="mt-10"><Gallery images={competitionPhotos} label="Фото с соревнований" initial={8} /></div>
+        </div>
+      </section>
+      <Wave class="-mt-px rotate-180 text-foam" variant={3} />
+    </>
+  )}
+
+  <section id="galereya" class="section scroll-mt-20" aria-labelledby="gallery-title">
+    <div class="container-page">
+      <SectionHeading id="gallery-title" title="Фотогалерея" />
+      <div class="mt-10">
+        {galleryPhotos.length > 0
+          ? <Gallery images={galleryPhotos} label="Фотогалерея клуба" initial={12} />
+          : <p class="text-ink-soft">Фото скоро появятся.</p>}
+      </div>
+    </div>
+  </section>
+
+  <LeadForm />
+</Base>

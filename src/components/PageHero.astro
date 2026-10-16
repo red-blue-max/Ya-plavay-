@@ -1,0 +1,42 @@
+---
+// Шапка внутренней страницы: хлебные крошки (+ schema.org BreadcrumbList), H1, вводный текст, вода.
+import WaterScene from './WaterScene.astro';
+
+interface Props {
+  title: string;
+  lead?: string;
+  crumbs?: { href?: string; label: string }[];
+}
+const { title, lead, crumbs = [] } = Astro.props;
+const trail = [{ href: '/', label: 'Главная' }, ...crumbs, { label: title }];
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: trail.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.label,
+    ...(c.href || i === trail.length - 1 ? { item: new URL(c.href ?? Astro.url.pathname, Astro.site).href } : {}),
+  })),
+};
+---
+
+<section class="relative isolate overflow-hidden pt-6 pb-24 sm:pt-10 sm:pb-32">
+  <WaterScene class="-z-10" next="cream" />
+  <div class="container-page">
+    <nav aria-label="Хлебные крошки">
+      <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-soft">
+        {trail.map((c, i) => (
+          <li class="flex items-center gap-2">
+            {i > 0 && <span aria-hidden="true">/</span>}
+            {c.href ? <a href={c.href} class="inline-flex min-h-11 items-center text-ink-soft">{c.label}</a> : <span aria-current="page" class="inline-flex min-h-11 items-center font-medium text-ink">{c.label}</span>}
+          </li>
+        ))}
+      </ol>
+    </nav>
+    <h1 class="mt-3 max-w-4xl">{title}</h1>
+    {lead && <p class="lead mt-5 max-w-2xl">{lead}</p>}
+    <slot />
+  </div>
+</section>
+<script type="application/ld+json" set:html={JSON.stringify(ld)} />

@@ -1,0 +1,48 @@
+---
+// Фото в фирменной рамке: скругление, смещённая цветная подложка, AVIF/WebP + srcset, lazy.
+import { Picture } from 'astro:assets';
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  /** Пропорция кадра: обрезка делается при сборке */
+  ratio?: '4/5' | '3/2' | '1/1' | '3/4' | '16/10';
+  frame?: 'foam' | 'sky' | 'sun' | 'coral' | 'none';
+  widths?: number[];
+  sizes?: string;
+  eager?: boolean;
+  /** Точка кадрирования при сборке: 'center', 'left', 'right top', 'attention' (лица и яркие детали) */
+  position?: string;
+  class?: string;
+}
+const {
+  src, alt, ratio = '4/5', frame = 'foam',
+  widths = [360, 560, 800, 1100],
+  sizes = '(min-width: 1024px) 40vw, 92vw',
+  eager = false, position = 'center', class: cls = '',
+} = Astro.props;
+const [rw, rh] = ratio.split('/').map(Number);
+const maxW = Math.min(src.width, Math.max(...widths));
+const frameColor = {
+  foam: 'var(--color-foam)', sky: 'var(--color-sky)', sun: 'var(--color-sun-soft)',
+  coral: 'var(--color-coral-soft)', none: 'transparent',
+}[frame];
+---
+
+<figure class:list={['photo-frame', cls]} style={`--frame-color:${frameColor}; aspect-ratio:${rw}/${rh}`}>
+  <Picture
+    src={src}
+    alt={alt}
+    formats={['avif', 'webp']}
+    widths={widths.filter((w) => w <= src.width)}
+    sizes={sizes}
+    width={maxW}
+    height={Math.round((maxW * rh) / rw)}
+    fit="cover"
+    position={position}
+    quality={72}
+    loading={eager ? 'eager' : 'lazy'}
+    fetchpriority={eager ? 'high' : undefined}
+    decoding="async"
+  />
+  <slot />
+</figure>

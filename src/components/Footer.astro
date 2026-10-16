@@ -1,0 +1,57 @@
+---
+import Icon from './Icon.astro';
+import Wave from './Wave.astro';
+import { NAV } from '../lib/site';
+
+interface Props {
+  site: {
+    fullName: string; phone: string; phoneHref: string; email: string;
+    telegram: string; max: string; vk: string;
+    operator: string; ogrnip: string; inn: string;
+  };
+}
+const { site } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="relative mt-auto bg-ink text-white">
+  <Wave class="absolute inset-x-0 bottom-full text-ink" />
+  <div class="container-page grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr]">
+    <div>
+      <p class="font-display text-2xl font-semibold">Плавать может каждый</p>
+      <p class="mt-3 max-w-sm text-white/80">{site.fullName}. Плавание и гидрореабилитация для детей и взрослых с особенностями развития в Москве.</p>
+      <ul class="mt-6 flex gap-2" aria-label="Мессенджеры и соцсети">
+        <li><a href={site.telegram} rel="noopener" class="flex size-12 items-center justify-center rounded-full bg-white/10 text-white no-underline hover:bg-white/20" aria-label="Telegram"><Icon name="telegram" /></a></li>
+        <li><a href={site.max} rel="noopener" class="flex size-12 items-center justify-center rounded-full bg-white/10 text-sm font-bold text-white no-underline hover:bg-white/20" aria-label="Max">MAX</a></li>
+        <li><a href={site.vk} rel="noopener" class="flex size-12 items-center justify-center rounded-full bg-white/10 text-white no-underline hover:bg-white/20" aria-label="ВКонтакте"><Icon name="vk" /></a></li>
+      </ul>
+    </div>
+
+    <nav aria-label="Разделы сайта">
+      <p class="text-sm font-semibold tracking-wide text-sky uppercase">Разделы</p>
+      <ul class="mt-4 grid gap-1">
+        {NAV.map((i) => <li><a href={i.href} class="inline-flex min-h-11 items-center text-white no-underline hover:underline">{i.label}</a></li>)}
+      </ul>
+    </nav>
+
+    <div>
+      <p class="text-sm font-semibold tracking-wide text-sky uppercase">Связаться</p>
+      <ul class="mt-4 grid gap-1">
+        <li><a href={site.phoneHref} class="inline-flex min-h-11 items-center gap-2 text-lg font-semibold text-white no-underline hover:underline"><Icon name="phone" size={20} />{site.phone}</a></li>
+        <li><a href={`mailto:${site.email}`} class="inline-flex min-h-11 items-center gap-2 text-white no-underline hover:underline"><Icon name="mail" size={20} />{site.email}</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10">
+    <div class="container-page flex flex-col gap-4 py-6 text-sm text-white/75 lg:flex-row lg:items-center lg:justify-between">
+      <p>{site.operator} · ОГРНИП {site.ogrnip} · ИНН {site.inn}</p>
+      <ul class="flex flex-wrap gap-x-5 gap-y-1">
+        <li><a href="/oferta/" class="inline-flex min-h-11 items-center text-white/85 hover:text-white">Договор оферты</a></li>
+        <li><a href="/soglasie_pers/" class="inline-flex min-h-11 items-center text-white/85 hover:text-white">Согласие на обработку ПДн</a></li>
+        <li><a href="/politicakonfi/" class="inline-flex min-h-11 items-center text-white/85 hover:text-white">Политика конфиденциальности</a></li>
+      </ul>
+    </div>
+    <p class="container-page pb-24 text-xs text-white/60 sm:pb-6">© {year} {site.fullName}</p>
+  </div>
+</footer>

@@ -1,0 +1,117 @@
+---
+// Служебная страница-витрина дизайн-системы. Закрыта от индексации и не попадает в sitemap.
+import Base from '../layouts/Base.astro';
+import WaterScene from '../components/WaterScene.astro';
+import Wave from '../components/Wave.astro';
+import Photo from '../components/Photo.astro';
+import Icon from '../components/Icon.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import p1 from '../images/photos/selfie-v-basseyne.jpg';
+import p2 from '../images/photos/medali.jpg';
+import p3 from '../images/photos/bassejn-sorevnovaniya.jpg';
+
+const colors = [
+  ['cream', '#FFFBF5', 'Фон страницы'],
+  ['foam', '#E6F7F6', 'Фон секций, подложки'],
+  ['sky', '#BDE4FF', 'Небо (из логотипа)'],
+  ['aqua', '#5CC6C0', 'Только декор, волны'],
+  ['sea', '#0A6E78', 'Ссылки · 6.0:1'],
+  ['ink', '#0B3B4F', 'Текст и заголовки · 11.6:1'],
+  ['ink-soft', '#3D5A6B', 'Вторичный текст · 7.1:1'],
+  ['coral', '#FF8A4C', 'Кнопки (тёмный текст) · 5.1:1'],
+  ['sun', '#FFB547', 'Бейджи, акценты · 6.8:1'],
+];
+const icons = ['phone', 'mail', 'telegram', 'vk', 'pin', 'metro', 'clock', 'thermo', 'access', 'users', 'user', 'heart', 'drop', 'wave', 'medal', 'bag', 'doc', 'shield', 'check', 'star', 'sparkle', 'arrow'] as const;
+---
+
+<Base title="Дизайн-система" description="Служебная страница дизайн-системы сайта." noindex noForm>
+  <section class="relative isolate overflow-hidden pt-16 pb-36 sm:pt-24 sm:pb-52">
+    <WaterScene class="-z-10" />
+    <div class="container-page">
+      <p class="eyebrow"><span class="lane inline-block w-8" aria-hidden="true"></span>Дизайн-система</p>
+      <h1 class="mt-4 max-w-3xl">Свет сквозь воду</h1>
+      <p class="lead mt-5 max-w-2xl">Тёплый белый, аквамарин и небесно-голубой. Один тёплый коралловый акцент для действий. Мягкие волны, скругления, много воздуха.</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="#buttons" class="btn btn-primary">Основная кнопка <Icon name="arrow" size={20} /></a>
+        <a href="#type" class="btn btn-secondary">Вторичная</a>
+        <a href="#icons" class="btn btn-ghost">Текстовая</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-foam">
+    <div class="container-page">
+      <SectionHeading eyebrow="Цвета" title="Палитра" lead="Все пары текст/фон проходят WCAG AA. Аквамарин используется только для декора." />
+      <ul class="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        {colors.map(([name, hex, role]) => (
+          <li class="card overflow-hidden" data-reveal>
+            <div class="h-24" style={`background:${hex}`}></div>
+            <div class="p-4"><p class="font-semibold">{name}</p><p class="text-sm text-ink-soft">{hex}</p><p class="mt-1 text-sm text-ink-soft">{role}</p></div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+  <Wave class="-mt-px rotate-180 text-foam" variant={2} />
+
+  <section class="section" id="type">
+    <div class="container-page grid gap-10 lg:grid-cols-2">
+      <div data-reveal>
+        <p class="eyebrow">Unbounded · заголовки</p>
+        <p class="mt-4 font-display text-5xl font-semibold leading-tight sm:text-6xl">Плавать может каждый</p>
+        <h2 class="mt-6">Заголовок второго уровня</h2>
+        <h3 class="mt-4">Заголовок карточки: индивидуальные занятия</h3>
+      </div>
+      <div data-reveal>
+        <p class="eyebrow">Onest · текст 17–18px</p>
+        <p class="lead mt-4">Вводный текст секции. Учим плавать детей и взрослых с особенностями развития.</p>
+        <p class="mt-4">Основной текст. Для каждого ребёнка строим свой план обучения и коррекционных упражнений — с учётом особенностей развития и целей. <a href="#type">Ссылка в тексте</a> с подчёркиванием.</p>
+        <p class="mt-4 text-sm text-ink-soft">Мелкий текст — подписи, сноски. Не меньше 14px.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-sky-soft" id="buttons">
+    <div class="container-page">
+      <SectionHeading eyebrow="Элементы" title="Кнопки, чипы, карточки" />
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <a href="#buttons" class="btn btn-primary">Записаться на пробное занятие</a>
+        <a href="#buttons" class="btn btn-secondary"><Icon name="telegram" size={20} />Написать в Telegram</a>
+        <span class="chip"><Icon name="access" size={18} />Доступная среда</span>
+        <span class="chip bg-sun-soft"><Icon name="clock" size={18} />45 минут</span>
+      </div>
+      <div class="mt-10 grid gap-6 md:grid-cols-3">
+        {['Индивидуальные занятия', 'Halliwick-терапия', 'Парафридайвинг'].map((t, i) => (
+          <article class="card card-hover p-6 sm:p-8" data-reveal style={`--reveal-delay:${i * 90}ms`}>
+            <span class="flex size-12 items-center justify-center rounded-2xl bg-foam text-sea"><Icon name={(['user', 'heart', 'drop'] as const)[i]} /></span>
+            <h3 class="mt-5">{t}</h3>
+            <p class="mt-2 text-ink-soft">Короткое описание направления в одну-две строки.</p>
+            <div class="lane mt-6 w-full opacity-70" aria-hidden="true"></div>
+            <p class="mt-4 font-semibold">от 1000 руб.</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container-page">
+      <SectionHeading eyebrow="Фото" title="Единая обработка фото" lead="Кадрирование при сборке, AVIF/WebP, srcset, ленивая загрузка, скругление и смещённая подложка." />
+      <div class="mt-10 grid gap-10 sm:grid-cols-3">
+        <Photo src={p1} alt="Тренер и дети в бассейне улыбаются" ratio="4/5" frame="sky" />
+        <Photo src={p2} alt="Занятие в бассейне" ratio="4/5" frame="sun" />
+        <Photo src={p3} alt="Занятие в бассейне" ratio="4/5" frame="coral" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-foam" id="icons">
+    <div class="container-page">
+      <SectionHeading eyebrow="Иконки" title="Линейные иконки" />
+      <ul class="mt-8 flex flex-wrap gap-3">
+        {icons.map((n) => <li class="flex size-14 items-center justify-center rounded-2xl bg-white text-sea" title={n}><Icon name={n} /></li>)}
+      </ul>
+      <div class="lane mt-10 w-full" aria-hidden="true"></div>
+    </div>
+  </section>
+</Base>

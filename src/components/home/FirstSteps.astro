@@ -1,0 +1,36 @@
+---
+import Icon from '../Icon.astro';
+import SectionHeading from '../SectionHeading.astro';
+import Wave from '../Wave.astro';
+
+const steps = [
+  { icon: 'chat', title: 'Напишите нам', text: 'Укажите имя ребёнка и родителя, возраст и опыт плавания, если он был.' },
+  { icon: 'doc', title: 'Возьмите справки', text: 'Допуск в бассейн (у педиатра в поликлинике) и справку от невролога о том, что оздоровительное плавание не противопоказано.' },
+  { icon: 'bag', title: 'Соберите сумку', text: 'Купальник или плавки, шапочка, очки, полотенце, сменная обувь для ребёнка и сопровождающего, трусики или подгузники для плавания.' },
+  { icon: 'heart', title: 'Первое занятие', text: 'Тренер всё время в воде рядом с ребёнком. Сначала оцениваем плавательные навыки и физическое развитие, потом составляем индивидуальный план.' },
+] as const;
+---
+
+<Wave class="text-sky-soft" variant={2} flip />
+<section class="bg-sky-soft pt-10 pb-16 sm:pb-24" aria-labelledby="steps-title">
+  <div class="container-page">
+    <SectionHeading id="steps-title" title="Как начать заниматься" align="center" />
+    <div class="relative mt-12">
+    <!-- Дорожка бассейна, соединяющая шаги на десктопе -->
+    <div class="lane absolute top-[2.6rem] right-[12%] left-[12%] hidden xl:block" aria-hidden="true"></div>
+    <ol class="relative grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      {steps.map((s, i) => (
+        <li class="card relative p-6 pt-5 sm:p-7" data-reveal style={`--reveal-delay:${i * 100}ms`}>
+          <div class="flex items-center gap-3">
+            <span class="relative z-10 flex size-12 items-center justify-center rounded-full bg-coral font-display text-lg font-semibold text-ink ring-4 ring-white" aria-hidden="true">{i + 1}</span>
+            <Icon name={s.icon} class="text-sea" />
+          </div>
+          <h3 class="mt-5"><span class="sr-only">Шаг {i + 1}. </span>{s.title}</h3>
+          <p class="mt-2 text-ink-soft">{s.text}</p>
+        </li>
+      ))}
+    </ol>
+    </div>
+  </div>
+</section>
+<Wave class="-mt-px rotate-180 text-sky-soft" variant={1} />

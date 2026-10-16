@@ -1,0 +1,32 @@
+---
+import { getCollection } from 'astro:content';
+import Icon from '../Icon.astro';
+import SectionHeading from '../SectionHeading.astro';
+
+const directions = await getCollection('directions');
+const icons = { individualnye: 'user', gruppovye: 'users', halliwick: 'heart', parafridajving: 'drop', watsu: 'wave' } as const;
+const bg = { sky: 'bg-sky-soft', foam: 'bg-foam', sun: 'bg-sun-soft' } as const;
+---
+
+<section class="section pt-10 sm:pt-14" aria-labelledby="dir-title">
+  <div class="container-page">
+    <SectionHeading id="dir-title" title="Наши занятия" lead="Для детей с разными особенностями развития — и для взрослых." />
+    <ul class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-6">
+      {directions.map((d, i) => (
+        <li class:list={['flex', i < 2 ? 'lg:col-span-3' : 'lg:col-span-2']} data-reveal style={`--reveal-delay:${(i % 3) * 80}ms`}>
+          <a href={`/zanyatiya/#${d.id}`} class="card card-hover group relative flex w-full flex-col overflow-hidden p-6 text-ink no-underline sm:p-7">
+            <span class:list={['absolute -top-10 -right-10 size-36 rounded-full opacity-70 transition-transform duration-500 group-hover:scale-110', bg[d.data.accent]]} aria-hidden="true"></span>
+            <span class="relative flex size-12 items-center justify-center rounded-2xl bg-white text-sea shadow-sm ring-1 ring-ink/5"><Icon name={icons[d.id as keyof typeof icons]} /></span>
+            <h3 class="relative mt-5">{d.data.title}</h3>
+            <p class="relative mt-2 flex-1 text-ink-soft">{d.data.short}</p>
+            <div class="lane relative mt-6 w-full opacity-60" aria-hidden="true"></div>
+            <p class="relative mt-4 flex items-center justify-between gap-3 font-semibold">
+              <span>{d.data.priceNote}</span>
+              <span class="flex size-10 items-center justify-center rounded-full bg-foam text-sea transition group-hover:bg-coral group-hover:text-ink" aria-hidden="true"><Icon name="arrow" size={20} /></span>
+            </p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

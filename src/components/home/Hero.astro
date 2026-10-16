@@ -1,0 +1,54 @@
+---
+import { getCollection } from 'astro:content';
+import WaterScene from '../WaterScene.astro';
+import Photo from '../Photo.astro';
+import Icon from '../Icon.astro';
+import { photos } from '../../lib/photos';
+import { SIGNUP_ANCHOR } from '../../lib/site';
+
+const poolCount = (await getCollection('pools')).length;
+const plural = (n: number) => (n % 10 === 1 && n % 100 !== 11 ? 'бассейн' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'бассейна' : 'бассейнов');
+const facts = [
+  { icon: 'medal', text: 'Тренеры с образованием в адаптивной физкультуре' },
+  { icon: 'heart', text: 'Тренер в воде на каждом занятии' },
+  { icon: 'pin', text: `${poolCount} ${plural(poolCount)} в Москве` },
+] as const;
+---
+
+<section class="relative isolate overflow-hidden pt-8 pb-28 sm:pt-14 sm:pb-40 lg:pb-48" aria-labelledby="hero-title">
+  <WaterScene class="-z-10" />
+  <div class="container-page grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
+    <div>
+      <h1 id="hero-title">
+        Плавать может <span class="relative whitespace-nowrap text-sea">каждый<svg class="absolute -bottom-2 left-0 h-3 w-full text-coral" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8c30-6 60-6 98 0s68 6 98 0" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" /></svg></span>
+      </h1>
+      <p class="lead mt-6 max-w-xl">
+        Спортивный клуб «Я Плаваю» в Москве. Учим плавать детей и взрослых с особенностями развития: ДЦП, РАС, ЗПР, синдромом Дауна, нарушениями слуха и зрения.
+      </p>
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <a href={SIGNUP_ANCHOR} class="btn btn-primary">Записаться на пробное занятие</a>
+        <a href="#podbor" class="btn btn-secondary">Подобрать занятие <Icon name="down" size={20} /></a>
+      </div>
+      <ul class="mt-8 grid gap-2.5 sm:flex sm:flex-wrap" aria-label="Коротко о клубе">
+        {facts.map((f) => (
+          <li class="chip bg-white/80 py-2 ring-1 ring-ink/5 backdrop-blur-sm">
+            <Icon name={f.icon} size={18} class="shrink-0 text-sea" />{f.text}
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="relative mx-auto w-full max-w-md lg:max-w-none">
+      <Photo
+        src={photos.selfie.src}
+        alt={photos.selfie.alt}
+        ratio="1/1"
+        position="left"
+        frame="sky"
+        eager
+        widths={[360, 520, 720, 1000]}
+        sizes="(min-width: 1024px) 38vw, (min-width: 640px) 28rem, 90vw"
+      />
+    </div>
+  </div>
+</section>

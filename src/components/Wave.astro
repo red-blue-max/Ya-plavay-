@@ -1,0 +1,24 @@
+---
+// Волнистый разделитель секций. Цвет задаётся через text-* (fill = currentColor):
+// ставьте цвет СЛЕДУЮЩЕЙ секции, а сам разделитель — у её верхнего края.
+interface Props {
+  class?: string;
+  /** Отразить по горизонтали, чтобы соседние волны не повторялись */
+  flip?: boolean;
+  variant?: 1 | 2 | 3;
+}
+const { class: cls = '', flip = false, variant = 1 } = Astro.props;
+const d = {
+  1: 'M0 48C120 22 240 8 360 14s240 38 360 40 240-26 360-34 240 8 360 26V80H0z',
+  2: 'M0 30c160 30 320 44 480 30S800 4 960 6s320 34 480 40V80H0z',
+  3: 'M0 56c90-18 180-36 300-30s200 40 340 40 220-44 380-46 280 22 420 32V80H0z',
+}[variant];
+---
+
+<svg
+  class:list={['pointer-events-none block h-10 w-full sm:h-16', flip && '-scale-x-100', cls]}
+  viewBox="0 0 1440 80"
+  preserveAspectRatio="none"
+  aria-hidden="true"
+  focusable="false"
+><path fill="currentColor" d={d} /></svg>

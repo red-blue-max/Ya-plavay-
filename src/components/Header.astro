@@ -1,0 +1,96 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import logo from '../images/brand/logo.png';
+import { NAV } from '../lib/site';
+
+interface Props {
+  site: { name: string; phone: string; phoneHref: string; telegram: string };
+  signupHref: string;
+}
+const { site, signupHref } = Astro.props;
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path === href || (href !== '/' && path.startsWith(href));
+---
+
+<header class="sticky top-0 z-50 border-b border-ink/5">
+  <!-- Размытие вынесено в отдельный слой: backdrop-filter на самом header ломает position:fixed у мобильного меню -->
+  <div class="absolute inset-0 -z-10 bg-cream/85 backdrop-blur-md supports-[backdrop-filter]:bg-cream/70" aria-hidden="true"></div>
+  <div class="container-page flex h-16 items-center gap-3 sm:h-20">
+    <a href="/" class="flex min-h-11 shrink-0 items-center gap-2.5 no-underline" aria-label={`${site.name} — на главную`}>
+      <Image src={logo} alt="" width={48} height={48} class="size-10 sm:size-12" loading="eager" />
+      <span class="font-display text-lg font-semibold tracking-tight text-ink sm:text-xl">{site.name}</span>
+    </a>
+
+    <nav aria-label="Основное меню" class="ml-auto hidden lg:block">
+      <ul class="flex items-center gap-1">
+        {NAV.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              aria-current={isCurrent(item.href) ? 'page' : undefined}
+              class="inline-flex min-h-11 items-center rounded-full px-3 text-[0.95rem] font-medium whitespace-nowrap text-ink no-underline transition hover:bg-foam aria-[current=page]:bg-foam aria-[current=page]:text-sea"
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="ml-auto flex items-center gap-2 lg:ml-4">
+      <a href={site.phoneHref} class="hidden min-h-11 items-center gap-2 rounded-full px-3 font-semibold whitespace-nowrap text-ink no-underline hover:bg-foam md:inline-flex lg:hidden xl:inline-flex">
+        <Icon name="phone" size={20} class="text-sea" />
+        <span>{site.phone}</span>
+      </a>
+      <a href={signupHref} class="btn btn-primary hidden !min-h-11 !px-5 sm:inline-flex">Записаться</a>
+
+      <!-- Мобильное меню на <details>: работает и без JavaScript -->
+      <details class="group relative lg:hidden" data-menu>
+        <summary
+          class="flex size-11 cursor-pointer list-none items-center justify-center rounded-full bg-white text-ink ring-1 ring-ink/10 [&::-webkit-details-marker]:hidden"
+          aria-label="Меню"
+        >
+          <Icon name="menu" class="group-open:hidden" />
+          <Icon name="close" class="hidden group-open:block" />
+        </summary>
+        <div class="fixed inset-x-0 top-16 bottom-0 hidden overflow-y-auto bg-cream px-4 pt-4 pb-28 group-open:block sm:top-20">
+          <nav aria-label="Мобильное меню">
+            <ul class="divide-y divide-ink/8">
+              <li><a href="/" class="flex min-h-14 items-center text-xl font-semibold text-ink no-underline">Главная</a></li>
+              {NAV.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined} class="flex min-h-14 items-center justify-between text-xl font-semibold text-ink no-underline aria-[current=page]:text-sea">
+                    {item.label}
+                    <Icon name="arrow" size={20} class="text-sea" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <div class="mt-8 grid gap-3">
+            <a href={signupHref} class="btn btn-primary w-full" data-menu-close>Записаться на пробное занятие</a>
+            <a href={site.phoneHref} class="btn btn-secondary w-full"><Icon name="phone" size={20} />{site.phone}</a>
+            <a href={site.telegram} class="btn btn-secondary w-full" rel="noopener"><Icon name="telegram" size={20} />Написать в Telegram</a>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Закрываем мобильное меню по Esc и при переходе по якорю
+  const menu = document.querySelector<HTMLDetailsElement>('[data-menu]');
+  if (menu) {
+    const close = () => {
+      if (menu.open) {
+        menu.open = false;
+        menu.querySelector('summary')?.focus();
+      }
+    };
+    document.addEventListener('keydown', (e) => e.key === 'Escape' && close());
+    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => (menu.open = false)));
+    menu.addEventListener('toggle', () => document.documentElement.classList.toggle('overflow-hidden', menu.open));
+  }
+</script>

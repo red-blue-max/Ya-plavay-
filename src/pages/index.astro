@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/home/Hero.astro';
+import Quiz from '../components/home/Quiz.astro';
+import Directions from '../components/home/Directions.astro';
+import FirstSteps from '../components/home/FirstSteps.astro';
+import About from '../components/home/About.astro';
+import TeamPreview from '../components/home/TeamPreview.astro';
+import PhotoMosaic from '../components/home/PhotoMosaic.astro';
+import PricesShort from '../components/home/PricesShort.astro';
+import LeadForm from '../components/LeadForm.astro';
+import ContactsBlock from '../components/ContactsBlock.astro';
+import { photos } from '../lib/photos';
+---
+
+<Base
+  title="Главная"
+  description="Адаптивное плавание и гидрореабилитация в Москве для детей с ДЦП, РАС, ЗПР, синдромом Дауна и взрослых с ОВЗ. Индивидуальные и групповые занятия, Halliwick, парафридайвинг. Запись на пробное занятие."
+  ogImage={photos.gruppa.src}
+>
+  <Hero />
+  <Quiz />
+  <Directions />
+  <FirstSteps />
+  <About />
+  <TeamPreview />
+  <PhotoMosaic />
+  <PricesShort />
+  <LeadForm />
+  <ContactsBlock />
+</Base>

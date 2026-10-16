@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content';
+import CoachCard from '../CoachCard.astro';
+import SectionHeading from '../SectionHeading.astro';
+import Icon from '../Icon.astro';
+import Wave from '../Wave.astro';
+
+const all = await getCollection('coaches');
+const featured = all.filter((c) => c.data.featured).slice(0, 4);
+---
+
+<Wave class="text-foam" variant={3} />
+<section class="bg-foam pt-10 pb-16 sm:pb-24" aria-labelledby="team-title">
+  <div class="container-page">
+    <div class="flex flex-wrap items-end justify-between gap-6">
+      <SectionHeading id="team-title" title="Наши тренеры" lead="Специалисты по адаптивной физкультуре и гидрореабилитации." />
+      <a href="/o-klube/#komanda" class="btn btn-secondary" data-reveal>Вся команда — {all.length} тренеров <Icon name="arrow" size={20} /></a>
+    </div>
+    <ul class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {featured.map((c, i) => (
+        <li data-reveal style={`--reveal-delay:${i * 80}ms`}><CoachCard coach={c.data} details={false} /></li>
+      ))}
+    </ul>
+  </div>
+</section>
+<Wave class="-mt-px rotate-180 text-foam" variant={2} />

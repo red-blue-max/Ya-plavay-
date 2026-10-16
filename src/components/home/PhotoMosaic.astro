@@ -1,0 +1,28 @@
+---
+import Photo from '../Photo.astro';
+import SectionHeading from '../SectionHeading.astro';
+import { homeGallery } from '../../lib/photos';
+
+// Раскладка мозаики: на телефоне — горизонтальная лента с прокруткой, на десктопе — сетка.
+const layout = [
+  'lg:col-span-2 lg:row-span-2', '', '', 'lg:row-span-2', '', '', 'lg:col-span-2', '',
+];
+const frames = ['sky', 'sun', 'foam', 'coral', 'foam', 'sky', 'sun', 'coral'] as const;
+---
+
+<section class="section overflow-hidden" aria-labelledby="photos-title">
+  <div class="container-page">
+    <SectionHeading id="photos-title" title="Как проходят наши занятия" />
+  </div>
+  <ul
+    class="container-page mt-10 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-6 lg:grid lg:auto-rows-[15rem] lg:grid-cols-4 lg:overflow-visible lg:pb-0"
+    aria-label="Фотографии с занятий"
+    tabindex="0"
+  >
+    {homeGallery.map((p, i) => (
+      <li class:list={['w-[72vw] max-w-xs shrink-0 snap-center lg:w-auto lg:max-w-none', layout[i]]} data-reveal style={`--reveal-delay:${(i % 4) * 70}ms`}>
+        <Photo src={p.src} alt={p.alt} ratio="3/4" frame={frames[i]} position="attention" class="h-full lg:!aspect-auto" sizes="(min-width: 1024px) 25vw, 72vw" widths={[320, 480, 720, 960]} />
+      </li>
+    ))}
+  </ul>
+</section>

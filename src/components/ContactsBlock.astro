@@ -1,0 +1,35 @@
+---
+import Icon from './Icon.astro';
+import SectionHeading from './SectionHeading.astro';
+import { getSite } from '../lib/site';
+
+interface Props { headingLevel?: 'h1' | 'h2' }
+const { headingLevel = 'h2' } = Astro.props;
+const site = await getSite();
+const items = [
+  { href: site.telegram, label: 'Telegram', value: 'Написать в Telegram', icon: 'telegram', ext: true },
+  { href: site.max, label: 'Max', value: 'Написать в Max', icon: 'chat', ext: true },
+  { href: `mailto:${site.email}`, label: 'Почта', value: site.email, icon: 'mail', ext: false },
+  { href: site.phoneHref, label: 'Телефон', value: site.phone, icon: 'phone', ext: false },
+  { href: site.vk, label: 'ВКонтакте', value: 'vk.com/yaplavau', icon: 'vk', ext: true },
+] as const;
+---
+
+<section class="section pb-28 sm:pb-32" aria-labelledby="contacts-title">
+  <div class="container-page">
+    <SectionHeading id="contacts-title" level={headingLevel} title="Контакты" lead={site.contactNote} />
+    <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {items.map((c, i) => (
+        <li data-reveal style={`--reveal-delay:${i * 60}ms`}>
+          <a href={c.href} rel={c.ext ? 'noopener' : undefined} class="card card-hover flex h-full min-h-24 items-center gap-4 p-5 text-ink no-underline">
+            <span class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-foam text-sea"><Icon name={c.icon} /></span>
+            <span>
+              <span class="block text-sm text-ink-soft">{c.label}</span>
+              <span class="block font-semibold whitespace-nowrap">{c.value}</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

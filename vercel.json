@@ -1,0 +1,160 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "astro",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "trailingSlash": true,
+  "redirects": [
+    {
+      "source": "/about",
+      "destination": "/o-klube/",
+      "permanent": true
+    },
+    {
+      "source": "/about/",
+      "destination": "/o-klube/",
+      "permanent": true
+    },
+    {
+      "source": "/treneri",
+      "destination": "/o-klube/#komanda",
+      "permanent": true
+    },
+    {
+      "source": "/treneri/",
+      "destination": "/o-klube/#komanda",
+      "permanent": true
+    },
+    {
+      "source": "/trenirovki",
+      "destination": "/zanyatiya/",
+      "permanent": true
+    },
+    {
+      "source": "/trenirovki/",
+      "destination": "/zanyatiya/",
+      "permanent": true
+    },
+    {
+      "source": "/individualnye-zanyatiya",
+      "destination": "/zanyatiya/#individualnye",
+      "permanent": true
+    },
+    {
+      "source": "/individualnye-zanyatiya/",
+      "destination": "/zanyatiya/#individualnye",
+      "permanent": true
+    },
+    {
+      "source": "/gruppovye-zanyatiya",
+      "destination": "/zanyatiya/#gruppovye",
+      "permanent": true
+    },
+    {
+      "source": "/gruppovye-zanyatiya/",
+      "destination": "/zanyatiya/#gruppovye",
+      "permanent": true
+    },
+    {
+      "source": "/halliwick-terapiya",
+      "destination": "/zanyatiya/#halliwick",
+      "permanent": true
+    },
+    {
+      "source": "/halliwick-terapiya/",
+      "destination": "/zanyatiya/#halliwick",
+      "permanent": true
+    },
+    {
+      "source": "/parafree",
+      "destination": "/zanyatiya/#parafridajving",
+      "permanent": true
+    },
+    {
+      "source": "/parafree/",
+      "destination": "/zanyatiya/#parafridajving",
+      "permanent": true
+    },
+    {
+      "source": "/watsu",
+      "destination": "/zanyatiya/#watsu",
+      "permanent": true
+    },
+    {
+      "source": "/watsu/",
+      "destination": "/zanyatiya/#watsu",
+      "permanent": true
+    },
+    {
+      "source": "/stoimost",
+      "destination": "/bassejny/#ceny",
+      "permanent": true
+    },
+    {
+      "source": "/stoimost/",
+      "destination": "/bassejny/#ceny",
+      "permanent": true
+    },
+    {
+      "source": "/galereya",
+      "destination": "/sorevnovaniya/#galereya",
+      "permanent": true
+    },
+    {
+      "source": "/galereya/",
+      "destination": "/sorevnovaniya/#galereya",
+      "permanent": true
+    },
+    {
+      "source": "/lager2",
+      "destination": "/sorevnovaniya/",
+      "permanent": true
+    },
+    {
+      "source": "/lager2/",
+      "destination": "/sorevnovaniya/",
+      "permanent": true
+    },
+    {
+      "source": "/page70040685.html",
+      "destination": "/zanyatiya/",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        }
+      ]
+    },
+    {
+      "source": "/_astro/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}

@@ -30,3 +30,13 @@ export function shortName(full: string) {
   const [last, first] = full.split(' ');
   return first ? `${first} ${last}` : full;
 }
+
+/**
+ * Куда отправлять форму записи. На Timeweb — PHP-обработчик /api/lead.php.
+ * Пусто — демо-режим: форма проверяет поля, но данные никуда не уходят
+ * (так собирается на Vercel: его серверы за рубежом, а данные родителей должны оставаться в РФ).
+ */
+export const FORM_ENDPOINT = (
+  import.meta.env.PUBLIC_FORM_ENDPOINT ?? (process.env.VERCEL ? '' : '/api/lead.php')
+).trim();
+export const FORM_DEMO = FORM_ENDPOINT === '';

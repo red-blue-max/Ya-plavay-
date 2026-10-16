@@ -4,7 +4,7 @@
 // Отправка: POST /api/lead.php (PHP, Timeweb). Без JS форма тоже работает — обычной отправкой.
 import Icon from './Icon.astro';
 import Wave from './Wave.astro';
-import { getSite } from '../lib/site';
+import { getSite, FORM_ENDPOINT, FORM_DEMO } from '../lib/site';
 
 interface Props { title?: string; lead?: string }
 const {
@@ -32,7 +32,13 @@ const field = 'mt-2 block w-full min-h-13 rounded-2xl border-0 bg-white px-4 py-
     </div>
 
     <div class="card p-5 sm:p-9" data-reveal>
-      <form action="/api/lead.php" method="post" class="grid gap-5" data-lead-form novalidate>
+      {FORM_DEMO && (
+        <p class="mb-6 flex gap-3 rounded-2xl bg-sun-soft p-4 text-[0.95rem]" role="note">
+          <Icon name="sparkle" size={20} class="mt-0.5 shrink-0" />
+          <span>Это демо-версия сайта: заявки с этой формы пока не отправляются. Чтобы записаться, напишите нам в <a href={site.telegram} rel="noopener">Telegram</a> или позвоните <a href={site.phoneHref} class="whitespace-nowrap">{site.phone}</a>.</span>
+        </p>
+      )}
+      <form action={FORM_ENDPOINT || undefined} method="post" class="grid gap-5" data-lead-form data-demo={FORM_DEMO ? '' : undefined} novalidate>
         <input type="hidden" name="page" value={Astro.url.pathname} />
         <input type="hidden" name="t" value="" data-lead-time />
         <input type="hidden" name="direction" value="" data-lead-direction />
@@ -91,6 +97,11 @@ const field = 'mt-2 block w-full min-h-13 rounded-2xl border-0 bg-white px-4 py-
         <span class="mx-auto flex size-16 items-center justify-center rounded-full bg-foam text-sea"><Icon name="check" size={32} /></span>
         <p class="mt-5 font-display text-2xl font-semibold">Спасибо! Заявка отправлена.</p>
         <p class="mt-2 text-ink-soft">Мы скоро с вами свяжемся.</p>
+      </div>
+      <div class="hidden text-center" data-lead-demo tabindex="-1" role="status">
+        <span class="mx-auto flex size-16 items-center justify-center rounded-full bg-sun-soft text-ink"><Icon name="sparkle" size={30} /></span>
+        <p class="mt-5 font-display text-2xl font-semibold">Форма заполнена верно</p>
+        <p class="mt-2 text-ink-soft">Но это демо-версия сайта, и заявка никуда не отправлена. Напишите нам в <a href={site.telegram} rel="noopener">Telegram</a> или позвоните <a href={site.phoneHref} class="whitespace-nowrap">{site.phone}</a>.</p>
       </div>
       <p class="mt-4 hidden rounded-2xl bg-coral-soft p-4" data-lead-fail role="alert">
         Не получилось отправить заявку. Попробуйте ещё раз или напишите нам в <a href={site.telegram} rel="noopener">Telegram</a>.
@@ -166,6 +177,15 @@ const field = 'mt-2 block w-full min-h-13 rounded-2xl border-0 bg-white px-4 py-
         if (!good && !firstBad) firstBad = el;
       }
       if (firstBad) { firstBad.focus(); return; }
+
+      if (form.hasAttribute('data-demo')) {
+        // Демо-режим: данные не отправляются
+        form.classList.add('hidden');
+        const demo = document.querySelector<HTMLElement>('[data-lead-demo]')!;
+        demo.classList.remove('hidden');
+        demo.focus();
+        return;
+      }
 
       submit.disabled = true;
       label.textContent = 'Отправляем…';
